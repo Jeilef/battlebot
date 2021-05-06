@@ -42,57 +42,69 @@ class App(QWidget):
         label_fighter_one = QLabel("Kämpfer 1", self)
         label_fighter_one.move(10, 0)
 
-        self.waffe_fighter_one = QComboBox(self)
+        self.waffe1_fighter_one = QComboBox(self)
         for row in range(len(self.waffen)):
             print(self.waffen[row][0])
-            self.waffe_fighter_one.addItem(self.waffen[row][0])
-        self.waffe_fighter_one.move(10, 30)
+            self.waffe1_fighter_one.addItem(self.waffen[row][0])
+        self.waffe1_fighter_one.move(10, 30)
+
+        self.waffe2_fighter_one = QComboBox(self)
+        for row in range(len(self.waffen)):
+            print(self.waffen[row][0])
+            self.waffe2_fighter_one.addItem(self.waffen[row][0])
+        self.waffe2_fighter_one.move(10, 60)
 
         self.body_value_f1 = QLineEdit("Körperwert", self)
-        self.body_value_f1.move(10, 60)
+        self.body_value_f1.move(10, 90)
 
         self.life_value_f1 = QLineEdit("Leben", self)
-        self.life_value_f1.move(10, 90)
+        self.life_value_f1.move(10, 120)
 
         self.armor_value_f1 = QLineEdit("Rüstung", self)
-        self.armor_value_f1.move(10, 120)
+        self.armor_value_f1.move(10, 150)
 
         self.attack_dice_value_f1 = QLineEdit("Angriffswürfel", self)
-        self.attack_dice_value_f1.move(10, 150)
+        self.attack_dice_value_f1.move(10, 180)
 
         self.block_dice_value_f1 = QLineEdit("Blockwürfel", self)
-        self.block_dice_value_f1.move(10, 180)
+        self.block_dice_value_f1.move(10, 210)
 
         self.dodge_dice_value_f1 = QLineEdit("Ausweichwürfel", self)
-        self.dodge_dice_value_f1.move(10, 210)
+        self.dodge_dice_value_f1.move(10, 240)
 
         # FIGHTER 2
         self.label_fighter_two = QLabel("Kämpfer 2", self)
         self.label_fighter_two.move(800, 0)
 
-        self.waffe_fighter_two = QComboBox(self)
+        self.waffe1_fighter_two = QComboBox(self)
         for row in range(len(self.waffen)):
             print(self.waffen[row][0])
-            self.waffe_fighter_two.addItem(self.waffen[row][0])
-        self.waffe_fighter_two.move(800, 30)
+            self.waffe1_fighter_two.addItem(self.waffen[row][0])
+        self.waffe1_fighter_two.move(800, 30)
+
+        self.waffe2_fighter_two = QComboBox(self)
+        for row in range(len(self.waffen)):
+            print(self.waffen[row][0])
+            self.waffe2_fighter_two.addItem(self.waffen[row][0])
+        self.waffe2_fighter_two.move(800, 60)
 
         self.body_value_f2 = QLineEdit("Körperwert", self)
-        self.body_value_f2.move(800, 60)
+        self.body_value_f2.move(800, 90)
 
         self.life_value_f2 = QLineEdit("Leben", self)
-        self.life_value_f2.move(800, 90)
+        self.life_value_f2.move(800, 120)
 
         self.armor_value_f2 = QLineEdit("Rüstung", self)
-        self.armor_value_f2.move(800, 120)
+        self.armor_value_f2.move(800, 150)
 
         self.attack_dice_value_f2 = QLineEdit("Angriffswürfel", self)
-        self.attack_dice_value_f2.move(800, 150)
+        self.attack_dice_value_f2.move(800, 180)
 
         self.block_dice_value_f2 = QLineEdit("Blockwürfel", self)
-        self.block_dice_value_f2.move(800, 180)
+        self.block_dice_value_f2.move(800, 210)
 
         self.dodge_dice_value_f2 = QLineEdit("Ausweichwürfel", self)
-        self.dodge_dice_value_f2.move(800, 210)
+        self.dodge_dice_value_f2.move(800, 240)
 
         # Fight process
         self.fight_diagram = PlotCanvas(self, width=5, height=4)

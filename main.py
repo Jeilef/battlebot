@@ -121,10 +121,10 @@ class App(QWidget):
 
     @pyqtSlot()
     def start_battle(self):
-        f1_damage_vals1 = self.waffen[self.waffe1_fighter_one.currentIndex()][1:6]
-        f1_damage_vals2 = self.waffen[self.waffe2_fighter_one.currentIndex()][1:6]
-        f2_damage_vals1 = self.waffen[self.waffe1_fighter_two.currentIndex()][1:6]
-        f2_damage_vals2 = self.waffen[self.waffe2_fighter_two.currentIndex()][1:6]
+        f1_damage_vals1 = self.waffen[self.waffe1_fighter_one.currentIndex()][1:7]
+        f1_damage_vals2 = self.waffen[self.waffe2_fighter_one.currentIndex()][1:7]
+        f2_damage_vals1 = self.waffen[self.waffe1_fighter_two.currentIndex()][1:7]
+        f2_damage_vals2 = self.waffen[self.waffe2_fighter_two.currentIndex()][1:7]
 
         handsf1_w1 = self.waffen[self.waffe1_fighter_one.currentIndex()][10]
         handsf2_w1 = self.waffen[self.waffe1_fighter_one.currentIndex()][10]
@@ -139,26 +139,28 @@ class App(QWidget):
 
         while f1_live_progress[-1] > 0 and f2_live_progress[-1] > 0:
             # FIGHT!!!
-            dmg_f1 = self.attack(f1_damage_vals1, f1_damage_vals2, self.dodge_dice_value_f1, self.block_dice_value_f1, self.dodge_chance_f1)
-            dmg_f1 -= int(self.armor_value_f1)
+            dmg_f1 = self.attack(f1_damage_vals1, f1_damage_vals2, int(self.dodge_dice_value_f1.text()),
+                                 int(self.block_dice_value_f1.text()), float(self.dodge_chance_f1.text()))
+            dmg_f1 -= int(self.armor_value_f1.text())
             f1_live_progress.append(f1_live_progress[-1] - dmg_f1)
 
-            dmg_f2 = self.attack(f2_damage_vals1, f2_damage_vals2, self.dodge_dice_value_f2, self.block_dice_value_f2, self.dodge_chance_f2)
-            dmg_f2 -= int(self.armor_value_f2)
+            dmg_f2 = self.attack(f2_damage_vals1, f2_damage_vals2, int(self.dodge_dice_value_f2.text()),
+                                 int(self.block_dice_value_f2.text()), float(self.dodge_chance_f2.text()))
+            dmg_f2 -= int(self.armor_value_f2.text())
             f2_live_progress.append(f2_live_progress[-1] - dmg_f2)
 
         self.fight_diagram.plot(f1_live_progress, f2_live_progress)
 
     def attack(self, weapon1, weapon2, dodge_dice, block_dice, dodge_chance):
-        dmg = weapon1[random.randrange(1,7)] + weapon2[random.randrange(1, 7)]
+        dmg = int(weapon1[random.randrange(0, 6)]) + int(weapon2[random.randrange(0, 6)])
         if random.random() < dodge_chance:
             # dodge
-            if max([random.randrange(1, 6) for i in range(dodge_dice)]) == 6:
+            if max([random.randrange(1, 7) for i in range(dodge_dice)]) == 6:
                 dmg = 0
         else:
             # block
             threshold = 3
-            blocks = [random.randrange(1, 6) for i in range(block_dice)]
+            blocks = [random.randrange(1, 7) for i in range(block_dice)]
             dmg -= len(list(filter(lambda x: x <= threshold, blocks)))
         return dmg
 

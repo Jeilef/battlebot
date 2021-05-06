@@ -2,12 +2,16 @@ import random
 import numpy as np
 from PyQt5.QtWidgets import QLabel, QComboBox, QLineEdit, QWidget
 
+from dice import Dice
+
 
 class Fighter(QWidget):
     def __init__(self, num, flinkheit, initiative, parent):
         super().__init__(parent)
         self.setMinimumWidth(200)
         self.waffen = np.genfromtxt("data/waffen.csv", delimiter=";", dtype=str, encoding="utf-8")
+
+        self.dice = None
 
         label_fighter = QLabel("Kämpfer " + str(num), self)
         label_fighter.move(10, 0)
@@ -41,6 +45,7 @@ class Fighter(QWidget):
         self.dodge_chance.move(10, 270)
 
     def ausruesten(self):
+        self.dice = Dice()
         self.hand1 = self.waffen[self.waffe1_fighter.currentIndex()]
         self.hand2 = self.waffen[self.waffe2_fighter.currentIndex()]
         num_hands = int(self.hand1[10]) + int(self.hand2[10])    # gucken ob man genug hände hat

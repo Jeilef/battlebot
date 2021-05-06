@@ -14,13 +14,11 @@ class Fighter(QWidget):
 
         self.waffe1_fighter = QComboBox(self)
         for row in range(len(self.waffen)):
-            print(self.waffen[row][0])
             self.waffe1_fighter.addItem(self.waffen[row][0])
         self.waffe1_fighter.move(10, 30)
 
         self.waffe2_fighter = QComboBox(self)
         for row in range(len(self.waffen)):
-            print(self.waffen[row][0])
             self.waffe2_fighter.addItem(self.waffen[row][0])
         self.waffe2_fighter.move(10, 60)
 
@@ -50,7 +48,6 @@ class Fighter(QWidget):
             self.waffe2_fighter.setCurrentIndex(0)
             self.hand2 = self.waffen[0]
             print('Waffen auswahl nicht möglich')
-        print(self.hand1, self.hand2)
         return self.hand1, self.hand2
 
     def angriff(self):

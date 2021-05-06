@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QComboBox, QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QComboBox, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QIcon
 
 from canvas import PlotCanvas
@@ -36,19 +36,28 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
+        self.hlayout = QHBoxLayout(self)
+
         self.start_battle_button = QPushButton("Start Battle", self)
         self.start_battle_button.move(250, 10)
         self.start_battle_button.clicked.connect(self.start_battle)
 
+
         # FIGHTER 1
-        self.fighter1 = Fighter(1, 1, 1, self)
+        self.fighter1 = Fighter(0, 1, 1, self)
 
         # FIGHTER 2
-        self.fighter2 = Fighter(2, 1, 1, self)
+        self.fighter2 = Fighter(1, 1, 1, self)
 
         # Fight process
         self.fight_diagram = PlotCanvas(self, width=5, height=4)
-        self.fight_diagram.move(200, 80)
+        self.fight_diagram.move(250, 80)
+
+        self.hlayout.addWidget(self.fighter1)
+        self.hlayout.addWidget(self.fight_diagram)
+        self.hlayout.addWidget(self.fighter2)
+        self.hlayout.addWidget(self.start_battle_button)
+
 
         self.show()
 

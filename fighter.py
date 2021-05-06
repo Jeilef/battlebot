@@ -6,10 +6,11 @@ from PyQt5.QtWidgets import QLabel, QComboBox, QLineEdit, QWidget
 class Fighter(QWidget):
     def __init__(self, num, flinkheit, initiative, parent):
         super().__init__(parent)
+        self.setMinimumWidth(200)
         self.waffen = np.genfromtxt("data/waffen.csv", delimiter=";", dtype=str, encoding="utf-8")
 
-        label_fighter_one = QLabel("Kämpfer " + str(num), self)
-        label_fighter_one.move(10, 0)
+        label_fighter = QLabel("Kämpfer " + str(num), self)
+        label_fighter.move(10, 0)
 
         self.waffe1_fighter = QComboBox(self)
         for row in range(len(self.waffen)):
@@ -51,7 +52,7 @@ class Fighter(QWidget):
             self.hand2 = self.waffen[0]
             print('Waffen auswahl nicht möglich')
         print(self.hand1, self.hand2)
-        return(self.hand1,self.hand2)
+        return self.hand1, self.hand2
 
     def equip_weapon(self, hand):
         for row in range(len(self.waffen)):

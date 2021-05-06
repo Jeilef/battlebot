@@ -63,56 +63,28 @@ class App(QWidget):
 
     @pyqtSlot()
     def start_battle(self):
-        f1_damage_vals1 = self.waffen[self.waffe1_fighter_one.currentIndex()][1:7]
-        f1_damage_vals2 = self.waffen[self.waffe2_fighter_one.currentIndex()][1:7]
-        f2_damage_vals1 = self.waffen[self.waffe1_fighter_two.currentIndex()][1:7]
-        f2_damage_vals2 = self.waffen[self.waffe2_fighter_two.currentIndex()][1:7]
-
-        handsf1_w1 = self.waffen[self.waffe1_fighter_one.currentIndex()][10]
-        handsf2_w1 = self.waffen[self.waffe1_fighter_one.currentIndex()][10]
-
-        if handsf1_w1 == 2:
-            f1_damage_vals2 = np.zeros((6,))
-        if handsf2_w1 == 2:
-            f2_damage_vals2 = np.zeros((6,))
-
-        f1_live_progress = [int(self.life_value_f1.text())]
-        f2_live_progress = [int(self.life_value_f2.text())]
+        self.fighter1.ausruesten()
+        self.fighter2.ausruesten()
+        f1_live_progress = [int(self.fighter1.life_value.text())]
+        f2_live_progress = [int(self.fighter2.life_value.text())]
 
         while f1_live_progress[-1] > 0 and f2_live_progress[-1] > 0:
             # FIGHT!!!
-            dmg_f1 = self.attack(f1_damage_vals1, f1_damage_vals2, int(self.dodge_dice_value_f1.text()),
-                                 int(self.block_dice_value_f1.text()), float(self.dodge_chance_f1.text()))
-            dmg_f1 -= int(self.armor_value_f1.text())
-            f1_live_progress.append(f1_live_progress[-1] - max(0, dmg_f1))
+            dmg_f1 = self.fighter1.angriff()
+            if random.random() < float(self.fighter2.dodge_chance.text()):
+                dmg_f1 = self.fighter2.ausweichen(dmg_f1)
+            else:
+                dmg_f1 = self.fighter2.blocken(dmg_f1)
+            f2_live_progress.append(f2_live_progress[-1] - max(0, dmg_f1))
 
-            dmg_f2 = self.attack(f2_damage_vals1, f2_damage_vals2, int(self.dodge_dice_value_f2.text()),
-                                 int(self.block_dice_value_f2.text()), float(self.dodge_chance_f2.text()))
-            dmg_f2 -= int(self.armor_value_f2.text())
-            f2_live_progress.append(f2_live_progress[-1] - max(0, dmg_f2))
+            dmg_f2 = self.fighter2.angriff()
+            if random.random() < float(self.fighter1.dodge_chance.text()):
+                dmg_f2 = self.fighter1.ausweichen(dmg_f2)
+            else:
+                dmg_f2 = self.fighter1.blocken(dmg_f2)
+            f1_live_progress.append(f1_live_progress[-1] - max(0, dmg_f2))
 
         self.fight_diagram.plot(f1_live_progress, f2_live_progress)
-
-    def attack(self, weapon1, weapon2, dodge_dice, dodge_chance):
-        dmg = self.damage_roll(weapon1) + self.damage_roll(weapon2)
-        if random.random() < dodge_chance:
-            # dodge
-            if max([random.randrange(1, 7) for i in range(dodge_dice)]) == 6:
-                dmg = 0
-        else:
-            # block
-            threshold = 3
-            blocks = [random.randrange(1, 7) for i in range(block_dice)]
-            dmg -= len(list(filter(lambda x: x <= threshold, blocks)))
-        return dmg
-
-    def damage_roll(self, weapon):
-        rand = 0
-        dmg = 0
-        while rand == 0:
-            rand = random.randrange(0, 6)
-            dmg += int(weapon[rand])
-        return dmg
 
 
 if __name__ == '__main__':

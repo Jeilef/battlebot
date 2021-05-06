@@ -43,66 +43,43 @@ class Fighter(QWidget):
         self.dodge_chance.move(10, 270)
 
     def ausruesten(self):
-
-        self.hand1 = self.equip_weapon(self.hand1)
-        self.hand2 = self.equip_weapon(self.hand2)
-        hand = int(self.hand1[10]) + int(self.hand2[10])    # gucken ob man genug hände hat
-        if hand > 2:
-            self.hand1 = self.waffen[0]
+        self.hand1 = self.waffen[self.waffe1_fighter.currentIndex()]
+        self.hand2 = self.waffen[self.waffe2_fighter.currentIndex()]
+        num_hands = int(self.hand1[10]) + int(self.hand2[10])    # gucken ob man genug hände hat
+        if num_hands > 2:
+            self.waffe2_fighter.setCurrentIndex(0)
             self.hand2 = self.waffen[0]
             print('Waffen auswahl nicht möglich')
         print(self.hand1, self.hand2)
         return self.hand1, self.hand2
 
-    def equip_weapon(self, hand):
-        for row in range(len(self.waffen)):
-            if hand == self.waffen[row][0]:
-                hand = self.waffen[row]
-                break
-            elif row == len(self.waffen) - 1:
-                hand = self.waffen[1]
-                break
-        return hand
-
     def angriff(self):
-        w20 = random.randint(1, 20)
-        w6h1 = random.randint(1, 6)
-        w6h2 = random.randint(1, 6)
-        angriffswert = self.koerper + int(self.hand1[7]) + int(self.hand2[7])
-        if angriffswert >= w20:                                     # Ob der Angriff trifft
-            schaden1 = self.schadensberechnung(w6h1)
-            schaden2 = self.schadensberechnung(w6h2)
+        angriffswert = int(self.body_value.text()) + int(self.hand1[7]) + int(self.hand2[7])
+        if angriffswert >= random.randint(1, 21):                                     # Ob der Angriff trifft
+            schaden1 = self.damage_roll(self.hand1[1:7])
+            schaden2 = self.damage_roll(self.hand2[1:7])
             schaden = schaden1 + schaden2
-            print(schaden, schaden1, schaden2)
         else:
             schaden = 0
-            print(schaden)
+        return schaden
 
-    def schadensberechnung(self, w6):
-        schaden = 0
-        while w6 == 1:  # krit Ermittlung Waffe1
-            if w6 == 1:
-                w6 = random.randint(1, 6)
-                schaden = schaden + int(self.hand1[1])
-                print('+', self.hand1[1])
-        schaden = schaden + int(self.hand1[w6])
-        return(schaden)
+    def damage_roll(self, weapon):
+        rand = 0
+        dmg = 0
+        while rand == 0:
+            rand = random.randrange(0, 6)
+            dmg += int(weapon[rand])
+        return dmg
 
-    def blocken(self,gegnerschaden):
+    def blocken(self, schaden):
         anzahl = int(self.hand1[8]) + int(self.hand2[8])
-        blockwurf = []
-        reduzierung = 0
-        for wurf in range(0, anzahl):
-            blockwurf.append(random.randint(1, 6))
-            if blockwurf[wurf] <= 5:
-                reduzierung = reduzierung + 1
-                print(blockwurf,reduzierung)
-        gegnerschaden = gegnerschaden - reduzierung
+        threshold = 3
+        blocks = [random.randrange(1, 7) for i in range(anzahl)]
+        reduzierung = len(list(filter(lambda x: x <= threshold, blocks)))
+        return max(0, schaden - int(self.armor_value.text()) - reduzierung)
 
-    def ausweichen(self,gegnerschaden):
-        for wurf in range(0, 6):
-            ausweichwurf = random.randint(1, 6)
-            if ausweichwurf == 6:
-                gegnerschaden = 0
-                print(gegnerschaden)
-                break
+    def ausweichen(self, schaden):
+        if max([random.randrange(1, 7) for i in range(int(self.dodge_dice_value.text()))]) == 6:
+            return 0
+        else:
+            return schaden - int(self.armor_value.text())

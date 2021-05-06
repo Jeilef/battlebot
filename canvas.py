@@ -18,11 +18,11 @@ class PlotCanvas(FigureCanvas):
                 QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
-        self.plot()
 
-    def plot(self):
-        data = [random.random() for i in range(25)]
+    def plot(self, data1, data2):
         ax = self.figure.add_subplot(111)
-        ax.plot(data, 'r-')
-        ax.set_title('PyQt Matplotlib Example')
+        ax.plot(data1, 'r-')
+        ax.set_title('Dmg1')
+        ax.plot(data2, 'b-')
+        ax.set_title("Dmg2")
         self.draw()

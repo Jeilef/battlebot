@@ -42,6 +42,10 @@ class App(QWidget):
         self.start_battle_button.move(250, 10)
         self.start_battle_button.clicked.connect(self.start_battle)
 
+        self.hundred_battles = QPushButton("Start 100 Battles", self)
+        self.hundred_battles.move(250, 10)
+        self.hundred_battles.clicked.connect(self.start_100_battles)
+
 
         # FIGHTER 1
         self.fighter1 = Fighter(0, 1, 1, self)
@@ -60,6 +64,13 @@ class App(QWidget):
 
 
         self.show()
+
+    @pyqtSlot()
+    def start_100_battles(self):
+        for fight_num in range(100):
+            hist1, hist2 = self.start_battle()
+            with open("fights/fight" + str(fight_num), "w") as fight_hist:
+                fight_hist.write(",".join(hist1) + "\n" + ",".join(hist2))
 
     @pyqtSlot()
     def start_battle(self):
@@ -85,6 +96,7 @@ class App(QWidget):
             f1_live_progress.append(f1_live_progress[-1] - max(0, dmg_f2))
 
         self.fight_diagram.plot(f1_live_progress, f2_live_progress)
+        return f1_live_progress, f2_live_progress
 
 
 if __name__ == '__main__':

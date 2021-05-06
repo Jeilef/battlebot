@@ -85,7 +85,7 @@ class Fighter(QWidget):
                 schaden = schaden + int(self.hand1[1])
                 print('+', self.hand1[1])
         schaden = schaden + int(self.hand1[w6])
-        return(schaden1)
+        return(schaden)
 
     def blocken(self,gegnerschaden):
         anzahl = int(self.hand1[8]) + int(self.hand2[8])

@@ -1,37 +1,50 @@
 import random
 import numpy as np
+from PyQt5.QtWidgets import QLabel, QComboBox, QLineEdit, QWidget
 
-class kaempfer:
-    def __init__(self, koerper, leben, flinkheit, ausweichen, initiative, waffe1, waffe2):
-        self.koerper = koerper
-        self.leben = leben
-        self.flinkheit = flinkheit
-        self.ausweichen = ausweichen
-        self.intitiative = initiative
-        self.hand1 = waffe1
-        self.hand2 = waffe2
-        self.waffen = None
+
+class Fighter(QWidget):
+    def __init__(self, num, flinkheit, initiative, parent):
+        super().__init__(parent)
+        self.waffen = np.genfromtxt("data/waffen.csv", delimiter=";", dtype=str, encoding="utf-8")
+
+        label_fighter_one = QLabel("Kämpfer " + str(num), self)
+        label_fighter_one.move(10, 0)
+
+        self.waffe1_fighter = QComboBox(self)
+        for row in range(len(self.waffen)):
+            print(self.waffen[row][0])
+            self.waffe1_fighter.addItem(self.waffen[row][0])
+        self.waffe1_fighter.move(10, 30)
+
+        self.waffe2_fighter = QComboBox(self)
+        for row in range(len(self.waffen)):
+            print(self.waffen[row][0])
+            self.waffe2_fighter.addItem(self.waffen[row][0])
+        self.waffe2_fighter.move(10, 60)
+
+        self.body_value = QLineEdit("Körperwert", self)
+        self.body_value.move(10, 90)
+
+        self.life_value = QLineEdit("Leben", self)
+        self.life_value.move(10, 120)
+
+        self.armor_value = QLineEdit("Rüstung", self)
+        self.armor_value.move(10, 150)
+
+        self.attack_dice_value = QLineEdit("Angriffswürfel", self)
+        self.attack_dice_value.move(10, 180)
+
+        self.dodge_dice_value = QLineEdit("Ausweichwürfel", self)
+        self.dodge_dice_value.move(10, 240)
+
+        self.dodge_chance = QLineEdit("Dodge Chance", self)
+        self.dodge_chance.move(10, 270)
 
     def ausruesten(self):
-        self.waffen = np.genfromtxt("data/waffen.csv", delimiter=";", dtype=str, encoding="utf-8")
-        for row in range(len(self.waffen)):                 # Ausrüstung der Waffe
-            if self.hand1 == self.waffen[row][0]:
-                self.hand1 = self.waffen[row]
-                break
-            elif row == len(self.waffen)-1:
-                self.hand1 = self.waffen[1]
-                break
-            elif self.hand1 != self.waffen[row][0]:
-                self.hand1 = self.hand1
-        for row in range(len(self.waffen)):
-            if self.hand2 == self.waffen[row][0]:
-                self.hand2 = self.waffen[row]
-                break
-            elif row == len(self.waffen) - 1:
-                self.hand2 = self.waffen[1]
-                break
-            elif self.hand2 != self.waffen[row][0]:
-                self.hand2 = self.hand2
+
+        self.hand1 = self.equip_weapon(self.hand1)
+        self.hand2 = self.equip_weapon(self.hand2)
         hand = int(self.hand1[10]) + int(self.hand2[10])    # gucken ob man genug hände hat
         if hand > 2:
             self.hand1 = self.waffen[0]
@@ -39,6 +52,16 @@ class kaempfer:
             print('Waffen auswahl nicht möglich')
         print(self.hand1, self.hand2)
         return(self.hand1,self.hand2)
+
+    def equip_weapon(self, hand):
+        for row in range(len(self.waffen)):
+            if hand == self.waffen[row][0]:
+                hand = self.waffen[row]
+                break
+            elif row == len(self.waffen) - 1:
+                hand = self.waffen[1]
+                break
+        return hand
 
     def angriff(self):
         w20 = random.randint(1, 20)
@@ -76,7 +99,6 @@ class kaempfer:
                 reduzierung = reduzierung + 1
                 print(blockwurf,reduzierung)
 
-
     def ausweichen(self):
         for wurf in range(0, 6):
             ausweichwurf = random.randint(1, 6)
@@ -84,11 +106,3 @@ class kaempfer:
                 gegnerschaden = 0
                 print(gegnerschaden)
                 break
-
-
-
-k1 = kaempfer(20, 2, 2, 2, 2, 'Langschwert', '-')
-k1.ausruesten()
-k1.angriff()
-k1.blocken()
-k1.ausweichen()

@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 class PlotCanvas(FigureCanvas):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
@@ -20,6 +19,8 @@ class PlotCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
 
     def plot(self, data1, data2):
+        self.figure.axes.clear()
+        self.figure.clear()
         ax = self.figure.add_subplot(111)
         ax.plot(data1, 'r-')
         ax.set_title('Dmg1')

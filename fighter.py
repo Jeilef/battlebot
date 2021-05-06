@@ -65,31 +65,29 @@ class Fighter(QWidget):
 
     def angriff(self):
         w20 = random.randint(1, 20)
-        w6h1 = 1 #random.randint(1, 6)
-        w6h2 = 1 #random.randint(1, 6)
+        w6h1 = random.randint(1, 6)
+        w6h2 = random.randint(1, 6)
         angriffswert = self.koerper + int(self.hand1[7]) + int(self.hand2[7])
         if angriffswert >= w20:                                     # Ob der Angriff trifft
-            schaden = 0
-            while w6h1 == 1:                                        # krit Ermittlung Waffe1
-                if w6h1 == 1:
-                    w6h1 = random.randint(1, 6)
-                    schaden = schaden + int(self.hand1[1])
-                    print('+', self.hand1[1])
-            schaden = schaden + int(self.hand1[w6h1])
-            schaden1 = schaden
-            while w6h2 == 1:                                        # krit Ermittlung Waffe2
-                if w6h2 == 1:
-                    w6h2 = random.randint(1, 6)
-                    schaden = schaden + int(self.hand2[1])
-                    print('+', self.hand2[1])
-            schaden = schaden + int(self.hand2[w6h2])
-            schaden2= schaden - schaden1
+            schaden1 = self.schadensberechnung(w6h1)
+            schaden2 = self.schadensberechnung(w6h2)
+            schaden = schaden1 + schaden2
             print(schaden, schaden1, schaden2)
         else:
             schaden = 0
             print(schaden)
 
-    def blocken(self):
+    def schadensberechnung(self, w6):
+        schaden = 0
+        while w6 == 1:  # krit Ermittlung Waffe1
+            if w6 == 1:
+                w6 = random.randint(1, 6)
+                schaden = schaden + int(self.hand1[1])
+                print('+', self.hand1[1])
+        schaden = schaden + int(self.hand1[w6h1])
+        return(schaden1)
+
+    def blocken(self,gegnerschaden):
         anzahl = int(self.hand1[8]) + int(self.hand2[8])
         blockwurf = []
         reduzierung = 0
@@ -98,8 +96,9 @@ class Fighter(QWidget):
             if blockwurf[wurf] <= 5:
                 reduzierung = reduzierung + 1
                 print(blockwurf,reduzierung)
+        gegnerschaden = gegnerschaden - reduzierung
 
-    def ausweichen(self):
+    def ausweichen(self,gegnerschaden):
         for wurf in range(0, 6):
             ausweichwurf = random.randint(1, 6)
             if ausweichwurf == 6:

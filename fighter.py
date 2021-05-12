@@ -40,7 +40,7 @@ class Fighter:
         return self.hand1, self.hand2
 
     def angriff(self):
-        angriffswert = int(self.body_value.slider.value()) + int(self.hand1[7]) + int(self.hand2[7])
+        angriffswert = int(self.body_value) + int(self.hand1[7]) + int(self.hand2[7])
         if angriffswert >= random.randint(1, 20):                                     # Ob der Angriff trifft
             schaden1 = self.damage_roll(self.hand1[1:7])
             schaden2 = self.damage_roll(self.hand2[1:7])
@@ -53,7 +53,7 @@ class Fighter:
         rand = 0
         dmg = 0
         while rand == 0:
-            rand = random.randrange(0, 6)
+            rand = self.dice.rollw6() - 1
             dmg += int(weapon[rand])
         return dmg
 
@@ -62,10 +62,10 @@ class Fighter:
         threshold = 3
         blocks = [random.randrange(1, 7) for i in range(anzahl)]
         reduzierung = len(list(filter(lambda x: x <= threshold, blocks)))
-        return max(0, schaden - int(self.armor_value.slider.value()) - reduzierung)
+        return max(0, schaden - int(self.armor_value) - reduzierung)
 
     def ausweichen(self, schaden):
-        if max([random.randrange(1, 7) for i in range(int(self.dodge_dice_value.slider.value()))]) == 6:
+        if max([random.randrange(1, 7) for i in range(int(self.dodge_dice_value))]) == 6:
             return 0
         else:
-            return schaden - int(self.armor_value.slider.value())
+            return schaden - int(self.armor_value)

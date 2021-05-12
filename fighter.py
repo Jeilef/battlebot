@@ -1,61 +1,40 @@
 import random
-import numpy as np
-from PyQt5.QtWidgets import QLabel, QComboBox, QLineEdit, QWidget, QSlider, QVBoxLayout, QHBoxLayout
 
-from ValueSlider import ValueSlider
+import numpy as np
+
 from dice import Dice
 
 
-class Fighter(QWidget):
-    def __init__(self, num, flinkheit, initiative, parent):
-        super().__init__(parent)
-        self.setMinimumWidth(200)
+class Fighter:
+    def __init__(self):
         self.waffen = np.genfromtxt("data/waffen.csv", delimiter=";", dtype=str, encoding="utf-8")
 
         self.dice = None
 
-        label_fighter = QLabel("Kämpfer " + str(num), self)
-        label_fighter.move(10, 0)
+        self.x_pos = 0
+        self.y_pos = 0
 
-        self.vLayout = QVBoxLayout()
+        self.waffe1_fighter = 0
+        self.waffe2_fighter = 0
+        self.body_value = 0
+        self.life_value = 0
+        self.armor_value = 0
+        self.attack_dice_value = 0
+        self.dodge_dice_value = 0
+        self.dodge_chance = 0
+        self.flinkheit = 0
+        self.initiative = 0
 
-        self.waffe1_fighter = QComboBox(self)
-        for row in range(len(self.waffen)):
-            self.waffe1_fighter.addItem(self.waffen[row][0])
-        self.vLayout.addWidget(self.waffe1_fighter)
-
-        self.waffe2_fighter = QComboBox(self)
-        for row in range(len(self.waffen)):
-            self.waffe2_fighter.addItem(self.waffen[row][0])
-        self.vLayout.addWidget(self.waffe2_fighter)
-
-        self.body_value = ValueSlider(6, 20, 10, "Körperwert", self)
-        self.vLayout.addWidget(self.body_value)
-
-        self.life_value = ValueSlider(30, 90, 10, "Leben", self, 3)
-        self.vLayout.addWidget(self.life_value)
-
-        self.armor_value = ValueSlider(0, 4, 1, "Rüstung", self)
-        self.vLayout.addWidget(self.armor_value)
-
-        self.attack_dice_value = ValueSlider(0, 4, 1, "Angriffswürfel", self)
-        self.vLayout.addWidget(self.attack_dice_value)
-
-        self.dodge_dice_value = ValueSlider(0, 8, 1, "Ausweichwürfel", self)
-        self.vLayout.addWidget(self.dodge_dice_value)
-
-        self.dodge_chance = ValueSlider(0, 1, 0.5, "Dodge Chance", self, 0.1)
-        self.vLayout.addWidget(self.dodge_chance)
-
-        self.setLayout(self.vLayout)
+    def __hash__(self):
+        return (self.x_pos, self.y_pos).__hash__()
 
     def ausruesten(self):
         self.dice = Dice()
-        self.hand1 = self.waffen[self.waffe1_fighter.currentIndex()]
-        self.hand2 = self.waffen[self.waffe2_fighter.currentIndex()]
+        self.hand1 = self.waffen[self.waffe1_fighter]
+        self.hand2 = self.waffen[self.waffe2_fighter]
         num_hands = int(self.hand1[10]) + int(self.hand2[10])    # gucken ob man genug hände hat
         if num_hands > 2:
-            self.waffe2_fighter.setCurrentIndex(0)
+            self.waffe2_fighter = 0
             self.hand2 = self.waffen[0]
             print('Waffen auswahl nicht möglich')
         return self.hand1, self.hand2

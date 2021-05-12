@@ -61,7 +61,7 @@ class App(QWidget):
         self.hlayout.addWidget(self.fight_diagram)
         self.hlayout.addWidget(self.fighter2)
         self.hlayout.addWidget(self.start_battle_button)
-
+        self.hlayout.addWidget(self.hundred_battles)
 
         self.show()
 
@@ -76,20 +76,20 @@ class App(QWidget):
     def start_battle(self):
         self.fighter1.ausruesten()
         self.fighter2.ausruesten()
-        f1_live_progress = [int(self.fighter1.life_value.text())]
-        f2_live_progress = [int(self.fighter2.life_value.text())]
+        f1_live_progress = [int(self.fighter1.life_value.slider.value())]
+        f2_live_progress = [int(self.fighter2.life_value.slider.value())]
 
         while f1_live_progress[-1] > 0 and f2_live_progress[-1] > 0:
             # FIGHT!!!
             dmg_f1 = self.fighter1.angriff()
-            if random.random() < float(self.fighter2.dodge_chance.text()):
+            if random.random() < float(self.fighter2.dodge_chance.slider.value()):
                 dmg_f1 = self.fighter2.ausweichen(dmg_f1)
             else:
                 dmg_f1 = self.fighter2.blocken(dmg_f1)
             f2_live_progress.append(f2_live_progress[-1] - max(0, dmg_f1))
 
             dmg_f2 = self.fighter2.angriff()
-            if random.random() < float(self.fighter1.dodge_chance.text()):
+            if random.random() < float(self.fighter1.dodge_chance.slider.value()):
                 dmg_f2 = self.fighter1.ausweichen(dmg_f2)
             else:
                 dmg_f2 = self.fighter1.blocken(dmg_f2)
@@ -100,6 +100,6 @@ class App(QWidget):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     ex = App()
     sys.exit(app.exec_())

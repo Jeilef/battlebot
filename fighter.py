@@ -1,7 +1,8 @@
 import random
 import numpy as np
-from PyQt5.QtWidgets import QLabel, QComboBox, QLineEdit, QWidget
+from PyQt5.QtWidgets import QLabel, QComboBox, QLineEdit, QWidget, QSlider, QVBoxLayout, QHBoxLayout
 
+from ValueSlider import ValueSlider
 from dice import Dice
 
 
@@ -16,33 +17,37 @@ class Fighter(QWidget):
         label_fighter = QLabel("Kämpfer " + str(num), self)
         label_fighter.move(10, 0)
 
+        self.vLayout = QVBoxLayout()
+
         self.waffe1_fighter = QComboBox(self)
         for row in range(len(self.waffen)):
             self.waffe1_fighter.addItem(self.waffen[row][0])
-        self.waffe1_fighter.move(10, 30)
+        self.vLayout.addWidget(self.waffe1_fighter)
 
         self.waffe2_fighter = QComboBox(self)
         for row in range(len(self.waffen)):
             self.waffe2_fighter.addItem(self.waffen[row][0])
-        self.waffe2_fighter.move(10, 60)
+        self.vLayout.addWidget(self.waffe2_fighter)
 
-        self.body_value = QLineEdit("Körperwert", self)
-        self.body_value.move(10, 90)
+        self.body_value = ValueSlider(6, 20, 10, "Körperwert", self)
+        self.vLayout.addWidget(self.body_value)
 
-        self.life_value = QLineEdit("Leben", self)
-        self.life_value.move(10, 120)
+        self.life_value = ValueSlider(30, 90, 10, "Leben", self, 3)
+        self.vLayout.addWidget(self.life_value)
 
-        self.armor_value = QLineEdit("Rüstung", self)
-        self.armor_value.move(10, 150)
+        self.armor_value = ValueSlider(0, 4, 1, "Rüstung", self)
+        self.vLayout.addWidget(self.armor_value)
 
-        self.attack_dice_value = QLineEdit("Angriffswürfel", self)
-        self.attack_dice_value.move(10, 180)
+        self.attack_dice_value = ValueSlider(0, 4, 1, "Angriffswürfel", self)
+        self.vLayout.addWidget(self.attack_dice_value)
 
-        self.dodge_dice_value = QLineEdit("Ausweichwürfel", self)
-        self.dodge_dice_value.move(10, 240)
+        self.dodge_dice_value = ValueSlider(0, 8, 1, "Ausweichwürfel", self)
+        self.vLayout.addWidget(self.dodge_dice_value)
 
-        self.dodge_chance = QLineEdit("Dodge Chance", self)
-        self.dodge_chance.move(10, 270)
+        self.dodge_chance = ValueSlider(0, 1, 0.5, "Dodge Chance", self, 0.1)
+        self.vLayout.addWidget(self.dodge_chance)
+
+        self.setLayout(self.vLayout)
 
     def ausruesten(self):
         self.dice = Dice()
@@ -56,8 +61,8 @@ class Fighter(QWidget):
         return self.hand1, self.hand2
 
     def angriff(self):
-        angriffswert = int(self.body_value.text()) + int(self.hand1[7]) + int(self.hand2[7])
-        if angriffswert >= random.randint(1, 21):                                     # Ob der Angriff trifft
+        angriffswert = int(self.body_value.slider.value()) + int(self.hand1[7]) + int(self.hand2[7])
+        if angriffswert >= random.randint(1, 20):                                     # Ob der Angriff trifft
             schaden1 = self.damage_roll(self.hand1[1:7])
             schaden2 = self.damage_roll(self.hand2[1:7])
             schaden = schaden1 + schaden2
@@ -78,10 +83,10 @@ class Fighter(QWidget):
         threshold = 3
         blocks = [random.randrange(1, 7) for i in range(anzahl)]
         reduzierung = len(list(filter(lambda x: x <= threshold, blocks)))
-        return max(0, schaden - int(self.armor_value.text()) - reduzierung)
+        return max(0, schaden - int(self.armor_value.slider.value()) - reduzierung)
 
     def ausweichen(self, schaden):
-        if max([random.randrange(1, 7) for i in range(int(self.dodge_dice_value.text()))]) == 6:
+        if max([random.randrange(1, 7) for i in range(int(self.dodge_dice_value.slider.value()))]) == 6:
             return 0
         else:
-            return schaden - int(self.armor_value.text())
+            return schaden - int(self.armor_value.slider.value())

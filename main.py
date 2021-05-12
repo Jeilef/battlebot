@@ -102,7 +102,7 @@ class App(QWidget):
         self.dodge_dice_value = ValueSlider(0, 8, 1, "Ausweichwürfel", self)
         self.vLayout.addWidget(self.dodge_dice_value)
 
-        self.dodge_chance = ValueSlider(0, 1, 0.5, "Dodge Chance", self, 0.1)
+        self.dodge_chance = ValueSlider(0, 10, 5, "Dodge Chance", self, 0.1)
         self.vLayout.addWidget(self.dodge_chance)
 
         self.flinkheit = ValueSlider(1, 10, 1, "Flinkheit", self)

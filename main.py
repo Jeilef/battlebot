@@ -5,11 +5,12 @@ import time
 
 import numpy as np
 from PyQt5 import QtGui
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot, QRect
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QComboBox, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout
 from PyQt5.QtGui import QIcon
 
 from Battleground import Battleground
+from CustomWeaponPopup import CustomWeaponPopup
 from ValueSlider import ValueSlider
 from canvas import PlotCanvas
 from fighter import Fighter
@@ -63,6 +64,10 @@ class App(QWidget):
 
         # FIGHTERS
         self.vLayout = QVBoxLayout()
+
+        self.add_custom_weapon_button = QPushButton("Add Weapon")
+        self.add_custom_weapon_button.clicked.connect(self.add_custom_weapon)
+        self.vLayout.addWidget(self.add_custom_weapon_button)
 
         self.num_fighters_sliders = ValueSlider(2, 4, 2, "Number of Fighters", self)
         self.num_fighters_sliders.slider.valueChanged.connect(self.add_fighter)
@@ -125,6 +130,25 @@ class App(QWidget):
         self.show()
 
     @pyqtSlot()
+    def custom_weapon_created(self):
+        print("custom weapon", self.popup.weapon)
+        self.waffen = np.vstack((self.waffen, np.array(self.popup.weapon)))
+        self.waffe1_fighter.addItem(self.popup.weapon[0])
+        self.waffe2_fighter.addItem(self.popup.weapon[0])
+        self.waffe1_fighter.update()
+        self.waffe2_fighter.update()
+        for f in self.battleground.fighters:
+            f.waffen = self.waffen
+
+    @pyqtSlot()
+    def add_custom_weapon(self):
+        self.popup = CustomWeaponPopup(self)
+        self.popup.setGeometry(QRect(100, 100, 1200, 200))
+        self.popup.new_weapon.connect(self.custom_weapon_created)
+        self.popup.show()
+
+
+    @pyqtSlot()
     def store_fighter_data(self):
         fighter = list(self.battleground.fighters)[self.selected_fighter]
         fighter.waffe1_fighter = self.waffe1_fighter.currentIndex()
@@ -163,7 +187,7 @@ class App(QWidget):
             print(self.fighter_selector.count(), value)
             if value > self.fighter_selector.count():
                 self.fighter_selector.addItem("Fighter " + str(self.fighter_selector.count()))
-                self.battleground.fighters.add(Fighter())
+                self.battleground.fighters.add(Fighter(self.waffen))
             else:
                 self.fighter_selector.removeItem(self.fighter_selector.count() - 1)
 

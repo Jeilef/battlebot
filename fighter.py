@@ -6,8 +6,8 @@ from dice import Dice
 
 
 class Fighter:
-    def __init__(self):
-        self.waffen = np.genfromtxt("data/waffen.csv", delimiter=";", dtype=str, encoding="utf-8")
+    def __init__(self, waffen):
+        self.waffen = waffen
 
         self.dice = None
 

@@ -40,7 +40,7 @@ class Battleground(QWidget):
         for y_coord in range(0, self.ground_size + 1, self.ground_size // self.cells):
             self.painter.drawLine(0, y_coord, self.ground_size, y_coord)
         half_cell_size = (self.ground_size // (self.cells * 2))
-        print("drawing")
+
         for f in self.fighters:
             self.painter.drawEllipse(f.x_pos,
                                      f.y_pos,

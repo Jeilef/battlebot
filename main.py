@@ -45,15 +45,12 @@ class App(QWidget):
         self.hlayout = QHBoxLayout(self)
 
         self.start_battle_button = QPushButton("Start Battle", self)
-        self.start_battle_button.clicked.connect(self.store_fighter_data)
         self.start_battle_button.clicked.connect(self.start_battle)
 
         self.hundred_battles = QPushButton("Start 100 Battles", self)
-        self.start_battle_button.clicked.connect(self.store_fighter_data)
         self.hundred_battles.clicked.connect(self.start_100_battles)
 
         self.toggle_round = QPushButton("Next Round", self)
-        self.start_battle_button.clicked.connect(self.store_fighter_data)
         self.toggle_round.clicked.connect(self.toggle_battle_round)
 
         button_layout = QVBoxLayout(self)
@@ -111,7 +108,6 @@ class App(QWidget):
         self.initiative = ValueSlider(10, 30, 1, "Initiative", self)
         self.vLayout.addWidget(self.initiative)
 
-
         diagram_layout = QVBoxLayout(self)
 
         # Fight process
@@ -141,8 +137,9 @@ class App(QWidget):
         fighter.dodge_chance = self.dodge_chance.slider.value()
         fighter.flinkheit = self.flinkheit.slider.value()
         fighter.initiative = self.initiative.slider.value()
+        print("selected fighter before", self.selected_fighter)
         self.selected_fighter = self.fighter_selector.currentIndex()
-
+        print("selected fighter after", self.selected_fighter)
         self.load_figher_data(self.battleground.fighters[self.selected_fighter])
 
         self.battleground.selected_fighter = self.selected_fighter
@@ -172,6 +169,7 @@ class App(QWidget):
 
     @pyqtSlot()
     def toggle_battle_round(self):
+        self.store_fighter_data()
         if not self.live_values_history:
             for idx, f in enumerate(self.battleground.fighters):
                 f.ausruesten()
@@ -186,11 +184,12 @@ class App(QWidget):
 
         if min(map(lambda x: x[-1], self.live_values_history)) <= 0:
             self.live_values_history.clear()
-
+        print(self.live_values_history)
         return self.live_values_history
 
     @pyqtSlot()
     def start_100_battles(self):
+        self.store_fighter_data()
         for fight_num in range(100):
             hist1, hist2 = self.start_battle()
             with open("fights/fight" + str(fight_num), "w") as fight_hist:
@@ -198,6 +197,7 @@ class App(QWidget):
 
     @pyqtSlot()
     def start_battle(self):
+        self.store_fighter_data()
         live_values = []
         for idx, f in enumerate(self.battleground.fighters):
             f.ausruesten()
@@ -212,38 +212,52 @@ class App(QWidget):
         self.fight_diagram.plot(live_values)
         return live_values
 
+    def find_target(self, fighter, f_idx):
+        min_dist = self.battleground.ground_size * 2
+        t_idx = 0
+        for idx, target in enumerate(self.battleground.fighters):
+            distance = math.sqrt(math.pow(fighter.x_pos - target.x_pos, 2) +
+                                 math.pow(fighter.y_pos - target.y_pos, 2))
+            if f_idx != idx and distance < min_dist:
+                t_idx = idx
+                min_dist = distance
+        return t_idx
+
     def battle_round(self, live_values):
         for idx, fighter in enumerate(self.battleground.fighters):
-            target = sorted(self.battleground.fighters,
-                             key=lambda f: math.sqrt(math.pow(fighter.x_pos - f.x_pos, 2) +
-                                                     math.pow(fighter.y_pos - f.y_pos, 2)))[1]
-
+            t_idx = self.find_target(fighter, idx)
+            target = self.battleground.fighters[t_idx]
             distance = math.sqrt(math.pow(fighter.x_pos - target.x_pos, 2) + math.pow(fighter.y_pos - target.y_pos, 2))
             table_value = "".join(filter(lambda x: x.isdigit(), self.waffen[fighter.waffe1_fighter][9]))
             reichweite = int(table_value) if table_value else 1
             if distance // self.battleground.cell_size <= reichweite:
                 dmg = fighter.angriff()
-                
+
                 if random.random() < float(target.dodge_chance):
                     dmg = target.ausweichen(dmg)
                 else:
                     dmg = target.blocken(dmg)
-                
-                live_values[idx].append(live_values[idx][-1] - max(0, dmg))
+
+                live_values[t_idx].append(live_values[t_idx][-1] - max(0, dmg))
             else:
+
                 movement = fighter.flinkheit * self.battleground.cell_size
                 old_x_pos = fighter.x_pos
                 if target.x_pos < fighter.x_pos - self.battleground.cell_size:
-                    fighter.x_pos = fighter.x_pos - min(movement, fighter.x_pos - target.x_pos + self.battleground.cell_size)
+                    fighter.x_pos = fighter.x_pos - min(movement,
+                                                        fighter.x_pos - target.x_pos + self.battleground.cell_size)
                 elif target.x_pos > fighter.x_pos + self.battleground.cell_size:
-                    fighter.x_pos = fighter.x_pos + min(movement, target.x_pos - fighter.x_pos - self.battleground.cell_size)
+                    fighter.x_pos = fighter.x_pos + min(movement,
+                                                        target.x_pos - fighter.x_pos - self.battleground.cell_size)
 
                 movement -= abs(old_x_pos - fighter.x_pos)
                 if target.y_pos < fighter.y_pos - self.battleground.cell_size:
-                    fighter.y_pos = fighter.y_pos - min(movement, fighter.y_pos - target.y_pos + self.battleground.cell_size)
+                    fighter.y_pos = fighter.y_pos - min(movement,
+                                                        fighter.y_pos - target.y_pos + self.battleground.cell_size)
                 elif target.y_pos > fighter.y_pos + self.battleground.cell_size:
-                    fighter.y_pos = fighter.y_pos + min(movement, target.y_pos - fighter.y_pos - self.battleground.cell_size)
-                live_values[idx].append(live_values[idx][-1])
+                    fighter.y_pos = fighter.y_pos + min(movement,
+                                                        target.y_pos - fighter.y_pos - self.battleground.cell_size)
+                live_values[t_idx].append(live_values[t_idx][-1])
 
 
 if __name__ == '__main__':

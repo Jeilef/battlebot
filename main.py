@@ -124,6 +124,8 @@ class App(QWidget):
         self.hlayout.addLayout(diagram_layout)
         self.hlayout.addLayout(button_layout)
 
+        self.load_figher_data(self.battleground.fighters[self.selected_fighter])
+
         self.show()
 
     @pyqtSlot()
@@ -140,7 +142,22 @@ class App(QWidget):
         fighter.flinkheit = self.flinkheit.slider.value()
         fighter.initiative = self.initiative.slider.value()
         self.selected_fighter = self.fighter_selector.currentIndex()
+
+        self.load_figher_data(self.battleground.fighters[self.selected_fighter])
+
         self.battleground.selected_fighter = self.selected_fighter
+
+    def load_figher_data(self, fighter):
+        self.waffe1_fighter.setCurrentIndex(fighter.waffe1_fighter)
+        self.waffe2_fighter.setCurrentIndex(fighter.waffe2_fighter)
+        self.body_value.slider.setValue(fighter.body_value)
+        self.life_value.slider.setValue(fighter.life_value)
+        self.armor_value.slider.setValue(fighter.armor_value)
+        self.attack_dice_value.slider.setValue(fighter.attack_dice_value)
+        self.dodge_dice_value.slider.setValue(fighter.dodge_dice_value)
+        self.dodge_chance.slider.setValue(fighter.dodge_chance)
+        self.flinkheit.slider.setValue(fighter.flinkheit)
+        self.initiative.slider.setValue(fighter.initiative)
 
     @pyqtSlot()
     def add_fighter(self):

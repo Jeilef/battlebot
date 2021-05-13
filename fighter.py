@@ -14,16 +14,16 @@ class Fighter:
         self.x_pos = 0
         self.y_pos = 0
 
-        self.waffe1_fighter = 0
-        self.waffe2_fighter = 0
-        self.body_value = 0
-        self.life_value = 0
+        self.waffe1_fighter = 1
+        self.waffe2_fighter = 1
+        self.body_value = 10
+        self.life_value = 30
         self.armor_value = 0
-        self.attack_dice_value = 0
+        self.attack_dice_value = 1
         self.dodge_dice_value = 0
         self.dodge_chance = 0
-        self.flinkheit = 0
-        self.initiative = 0
+        self.flinkheit = 5
+        self.initiative = 10
 
     def __hash__(self):
         return (self.x_pos, self.y_pos).__hash__()

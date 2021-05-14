@@ -6,7 +6,7 @@ from dice import Dice
 
 
 class Fighter:
-    def __init__(self, waffen):
+    def __init__(self, waffen, num):
         self.waffen = waffen
 
         self.dice = None
@@ -24,6 +24,9 @@ class Fighter:
         self.dodge_chance = 0
         self.flinkheit = 5
         self.initiative = 10
+
+        self.num = num
+        self.team = 0
 
     def __hash__(self):
         return (self.x_pos, self.y_pos).__hash__()

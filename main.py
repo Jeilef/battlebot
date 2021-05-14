@@ -1,13 +1,8 @@
-import math
-import random
 import sys
-import time
 
 import numpy as np
-from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot, QRect
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QComboBox, QLabel, QLineEdit, QVBoxLayout, QHBoxLayout
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QComboBox, QVBoxLayout, QHBoxLayout
 
 from Battleground import Battleground
 from CustomWeaponPopup import CustomWeaponPopup
@@ -48,15 +43,12 @@ class App(QWidget):
         self.start_battle_button = QPushButton("Start Battle", self)
         self.start_battle_button.clicked.connect(self.start_battle)
 
-        self.hundred_battles = QPushButton("Start 100 Battles", self)
-        self.hundred_battles.clicked.connect(self.start_100_battles)
-
         self.toggle_round = QPushButton("Next Round", self)
         self.toggle_round.clicked.connect(self.toggle_battle_round)
 
         button_layout = QVBoxLayout(self)
         button_layout.addWidget(self.start_battle_button)
-        button_layout.addWidget(self.hundred_battles)
+
         button_layout.addWidget(self.toggle_round)
 
         # Battleground
@@ -79,6 +71,11 @@ class App(QWidget):
         self.fighter_selector.currentIndexChanged.connect(self.store_fighter_data)
         self.vLayout.addWidget(self.fighter_selector)
 
+        self.team_selector = QComboBox(self)
+        self.team_selector.addItems(list(map(lambda x: "Team " + str(x), range(4))))
+        self.team_selector.currentIndexChanged.connect(self.store_fighter_data)
+        self.vLayout.addWidget(self.team_selector)
+
         self.waffe1_fighter = QComboBox(self)
         for row in range(len(self.waffen)):
             self.waffe1_fighter.addItem(self.waffen[row][0])
@@ -92,7 +89,7 @@ class App(QWidget):
         self.body_value = ValueSlider(6, 20, 10, "Körperwert", self)
         self.vLayout.addWidget(self.body_value)
 
-        self.life_value = ValueSlider(30, 90, 10, "Leben", self, 3)
+        self.life_value = ValueSlider(30, 90, 30, "Leben", self, 3)
         self.vLayout.addWidget(self.life_value)
 
         self.armor_value = ValueSlider(0, 4, 1, "Rüstung", self)
@@ -147,10 +144,10 @@ class App(QWidget):
         self.popup.new_weapon.connect(self.custom_weapon_created)
         self.popup.show()
 
-
     @pyqtSlot()
     def store_fighter_data(self):
         fighter = list(self.battleground.fighters)[self.selected_fighter]
+        fighter.team = self.team_selector.currentIndex()
         fighter.waffe1_fighter = self.waffe1_fighter.currentIndex()
         fighter.waffe2_fighter = self.waffe2_fighter.currentIndex()
         fighter.body_value = self.body_value.slider.value()
@@ -169,6 +166,7 @@ class App(QWidget):
         self.battleground.selected_fighter = self.selected_fighter
 
     def load_figher_data(self, fighter):
+
         self.waffe1_fighter.setCurrentIndex(fighter.waffe1_fighter)
         self.waffe2_fighter.setCurrentIndex(fighter.waffe2_fighter)
         self.body_value.slider.setValue(fighter.body_value)
@@ -179,6 +177,7 @@ class App(QWidget):
         self.dodge_chance.slider.setValue(fighter.dodge_chance)
         self.flinkheit.slider.setValue(fighter.flinkheit)
         self.initiative.slider.setValue(fighter.initiative)
+        self.team_selector.setCurrentIndex(fighter.team)
 
     @pyqtSlot()
     def add_fighter(self):
@@ -187,7 +186,7 @@ class App(QWidget):
             print(self.fighter_selector.count(), value)
             if value > self.fighter_selector.count():
                 self.fighter_selector.addItem("Fighter " + str(self.fighter_selector.count()))
-                self.battleground.fighters.add(Fighter(self.waffen))
+                self.battleground.fighters.add(Fighter(self.waffen, self.fighter_selector.count() - 1))
             else:
                 self.fighter_selector.removeItem(self.fighter_selector.count() - 1)
 
@@ -200,24 +199,17 @@ class App(QWidget):
                 self.live_values_history.append([f.life_value])
 
         # FIGHT!!!
-        self.battle_round(self.live_values_history)
+
+        self.battleground.battle_round(self.live_values_history, self.waffen, len(self.live_values_history[0]))
         self.battleground.update()
         # time.sleep(2)
 
-        self.fight_diagram.plot(self.live_values_history)
-
-        if min(map(lambda x: x[-1], self.live_values_history)) <= 0:
+        self.fight_diagram.plot(self.live_values_history, self.battleground.color_codes())
+        print(self.live_values_history, len(self.live_values_history[0]))
+        if self.battleground.fight_finished(self.live_values_history):
             self.live_values_history.clear()
-        print(self.live_values_history)
-        return self.live_values_history
 
-    @pyqtSlot()
-    def start_100_battles(self):
-        self.store_fighter_data()
-        for fight_num in range(100):
-            hist1, hist2 = self.start_battle()
-            with open("fights/fight" + str(fight_num), "w") as fight_hist:
-                fight_hist.write(",".join(hist1) + "\n" + ",".join(hist2))
+        return self.live_values_history
 
     @pyqtSlot()
     def start_battle(self):
@@ -227,61 +219,15 @@ class App(QWidget):
             f.ausruesten()
             live_values.append([f.life_value])
 
-        while min(map(lambda x: x[-1], live_values)) > 0:
+        while not self.battleground.fight_finished(live_values):
             # FIGHT!!!
-            self.battle_round(live_values)
+            round = len(live_values[0])
+            self.battleground.battle_round(live_values, self.waffen, round)
             self.battleground.update()
             # time.sleep(2)
 
-        self.fight_diagram.plot(live_values)
+        self.fight_diagram.plot(live_values, self.battleground.color_codes())
         return live_values
-
-    def find_target(self, fighter, f_idx):
-        min_dist = self.battleground.ground_size * 2
-        t_idx = 0
-        for idx, target in enumerate(self.battleground.fighters):
-            distance = math.sqrt(math.pow(fighter.x_pos - target.x_pos, 2) +
-                                 math.pow(fighter.y_pos - target.y_pos, 2))
-            if f_idx != idx and distance < min_dist:
-                t_idx = idx
-                min_dist = distance
-        return t_idx
-
-    def battle_round(self, live_values):
-        for idx, fighter in enumerate(self.battleground.fighters):
-            t_idx = self.find_target(fighter, idx)
-            target = self.battleground.fighters[t_idx]
-            distance = math.sqrt(math.pow(fighter.x_pos - target.x_pos, 2) + math.pow(fighter.y_pos - target.y_pos, 2))
-            table_value = "".join(filter(lambda x: x.isdigit(), self.waffen[fighter.waffe1_fighter][9]))
-            reichweite = int(table_value) if table_value else 1
-            if distance // self.battleground.cell_size <= reichweite:
-                dmg = fighter.angriff()
-
-                if random.random() < float(target.dodge_chance):
-                    dmg = target.ausweichen(dmg)
-                else:
-                    dmg = target.blocken(dmg)
-
-                live_values[t_idx].append(live_values[t_idx][-1] - max(0, dmg))
-            else:
-
-                movement = fighter.flinkheit * self.battleground.cell_size
-                old_x_pos = fighter.x_pos
-                if target.x_pos < fighter.x_pos - self.battleground.cell_size:
-                    fighter.x_pos = fighter.x_pos - min(movement,
-                                                        fighter.x_pos - target.x_pos + self.battleground.cell_size)
-                elif target.x_pos > fighter.x_pos + self.battleground.cell_size:
-                    fighter.x_pos = fighter.x_pos + min(movement,
-                                                        target.x_pos - fighter.x_pos - self.battleground.cell_size)
-
-                movement -= abs(old_x_pos - fighter.x_pos)
-                if target.y_pos < fighter.y_pos - self.battleground.cell_size:
-                    fighter.y_pos = fighter.y_pos - min(movement,
-                                                        fighter.y_pos - target.y_pos + self.battleground.cell_size)
-                elif target.y_pos > fighter.y_pos + self.battleground.cell_size:
-                    fighter.y_pos = fighter.y_pos + min(movement,
-                                                        target.y_pos - fighter.y_pos - self.battleground.cell_size)
-                live_values[t_idx].append(live_values[t_idx][-1])
 
 
 if __name__ == '__main__':
